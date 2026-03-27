@@ -1,0 +1,14 @@
+{
+  "name": "conversion",
+  "version": "1.0.0",
+  "description": "Node.js + Express backend parity with Flask app.py",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "express": "^4.22.1"
+  }
+}
