@@ -13,6 +13,8 @@ const DB_FILE = 'wingmann.db';
 // Middleware
 app.use(express.json());
 
+app.use(express.static("static"));
+
 // Initialize Database
 const db = new Database(DB_FILE);
 db.exec(`
