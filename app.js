@@ -1247,30 +1247,24 @@ app.post("/submit", (req, res) => {
     const phoneRegex = /^\d{10}$/;
 
     if (!name || !gender || !phone) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Missing required fields (name, gender, phone)",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields (name, gender, phone)",
+      });
     }
 
     if (!phoneRegex.test(phone)) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Phone number must be exactly 10 digits.",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Phone number must be exactly 10 digits.",
+      });
     }
 
     if (!answers || Object.keys(answers).length !== 25) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: `Invalid number of answers. Expected 25, got ${Object.keys(answers || {}).length}`,
-        });
+      return res.status(400).json({
+        success: false,
+        error: `Invalid number of answers. Expected 25, got ${Object.keys(answers || {}).length}`,
+      });
     }
 
     const userData = {
@@ -1323,6 +1317,28 @@ app.post("/submit", (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get("/delete-all-users", (req, res) => {
+  try {
+    const result = db.prepare("DELETE FROM users").run();
+
+    // reset auto increment
+    db.prepare("DELETE FROM sqlite_sequence WHERE name='users'").run();
+
+    
+    fs.writeFileSync("users_data.json", JSON.stringify([]));
+    fs.writeFileSync("user_data_og.json", JSON.stringify([]));
+    res.json({
+      success: true,
+      message: `Deleted ${result.changes} users`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
