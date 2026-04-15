@@ -1342,6 +1342,42 @@ app.post("/submit", (req, res) => {
 //   }
 // });
 
+
+app.delete("/delete-user/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // delete from DB
+    const result = db
+      .prepare("DELETE FROM users WHERE id = ?")
+      .run(id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // OPTIONAL: update JSON files
+    const users = JSON.parse(fs.readFileSync("users_data.json", "utf-8"));
+    const updatedUsers = users.filter((user) => user.id != id);
+
+    fs.writeFileSync("users_data.json", JSON.stringify(updatedUsers, null, 2));
+    fs.writeFileSync("user_data_og.json", JSON.stringify(updatedUsers, null, 2));
+
+    res.json({
+      success: true,
+      message: `User with id ${id} deleted successfully`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
 app.get("/results", (req, res) => {
   res.sendFile(path.join(__dirname, "template", "results.html"));
 });
