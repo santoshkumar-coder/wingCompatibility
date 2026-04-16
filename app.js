@@ -1320,27 +1320,8 @@ app.post("/submit", (req, res) => {
   }
 });
 
-// app.get("/delete-all-users", (req, res) => {
-//   try {
-//     const result = db.prepare("DELETE FROM users").run();
 
-//     // reset auto increment
-//     db.prepare("DELETE FROM sqlite_sequence WHERE name='users'").run();
 
-    
-//     fs.writeFileSync("users_data.json", JSON.stringify([]));
-//     fs.writeFileSync("user_data_og.json", JSON.stringify([]));
-//     res.json({
-//       success: true,
-//       message: `Deleted ${result.changes} users`,
-//     });
-//   } catch (err) {
-//     res.status(500).json({
-//       success: false,
-//       error: err.message,
-//     });
-//   }
-// });
 
 
 
