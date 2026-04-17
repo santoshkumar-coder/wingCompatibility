@@ -1487,7 +1487,8 @@ app.use(express.static("static"));
 ========================= */
 mongoose
   .connect(
-    process.env.MONGO_URI || 'mongodb+srv://abhisheks:ijgha3sbMNK0Hfsu@cluster0.ul6vz.mongodb.net/vlm_?retryWrites=true&w=majority&appName=Cluster0',
+    process.env.MONGO_URI ||
+      "mongodb://spakindai:Pearlapp@ac-vrrvhjq-shard-00-00.1svywc7.mongodb.net:27017,ac-vrrvhjq-shard-00-01.1svywc7.mongodb.net:27017,ac-vrrvhjq-shard-00-02.1svywc7.mongodb.net:27017/WingCompatibility?ssl=true&replicaSet=atlas-12or8j-shard-0&authSource=admin&appName=SpakCluster",
   )
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => {
@@ -1533,7 +1534,7 @@ userSchema.pre("save", async function () {
 });
 
 // ✅ MODEL AFTER HOOK
-const User = mongoose.model("UserCompatibility", userSchema);
+const User = mongoose.model("User", userSchema);
 
 
 /* =========================
