@@ -655,7 +655,7 @@ def calculate_compatibility(user1_answers, user2_answers, detailed=False):
     else:
         return round(percentage, 2)
 
-@app.route('/')
+@app.runroute('/')
 def index():
     return render_template('home.html')
 
@@ -914,6 +914,9 @@ def get_detailed_compatibility():
         'analysis': detailed_analysis
     })
 
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
 
