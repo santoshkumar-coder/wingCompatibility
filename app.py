@@ -655,7 +655,7 @@ def calculate_compatibility(user1_answers, user2_answers, detailed=False):
     else:
         return round(percentage, 2)
 
-@app.runroute('/')
+@app.route('/')
 def index():
     return render_template('home.html')
 
