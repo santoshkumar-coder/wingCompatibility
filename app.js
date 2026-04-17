@@ -1536,7 +1536,6 @@ userSchema.pre("save", async function () {
 // ✅ MODEL AFTER HOOK
 const User = mongoose.model("User", userSchema);
 
-
 /* =========================
    Helper
 ========================= */
@@ -1545,8 +1544,6 @@ function sortAnswers(answers) {
     Object.entries(answers).sort(([a], [b]) => parseInt(a) - parseInt(b)),
   );
 }
-
-
 
 /* =========================
    NLP + COMPATIBILITY (UNCHANGED)
@@ -1667,13 +1664,25 @@ app.get("/api/compatibility/all", async (req, res) => {
     if (userId) {
       const selected = users.find((u) => u.id.toString() === userId);
       if (!selected) return res.status(404).json({ error: "User not found" });
-    
 
       users.forEach((u) => {
         if (u._id.toString() !== userId && u.gender !== selected.gender) {
+          // matrix.push({
+          //   user1: selected,
+          //   user2: u,
+          //   score: calculateCompatibility(selected.answers, u.answers),
+          // });
           matrix.push({
-            user1: selected,
-            user2: u,
+            user1: {
+              id: selected.id,
+              name: selected.name,
+              gender: selected.gender,
+            },
+            user2: {
+              id: u.id, // ✅ FIX HERE
+              name: u.name,
+              gender: u.gender,
+            },
             score: calculateCompatibility(selected.answers, u.answers),
           });
         }
