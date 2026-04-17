@@ -1,5 +1,5 @@
 const express = require("express");
-
+const Database = require("better-sqlite3");
 const fs = require("fs");
 const path = require("path");
 
@@ -84,7 +84,7 @@ function sortAnswers(answers) {
   );
 }
 
-// // Data Constants
+// Data Constants
 const QUESTION_WEIGHTS = {
   1: 3,
   2: 5,
@@ -1098,9 +1098,7 @@ function categorizeQ5Answer(text) {
     const allMatches = new Set();
 
     // Check Core Keywords
-    const keywords = Q5_CATEGORIES?.[catId] || [];
-
-    for (const keyword of keywords) {
+    for (const keyword of Q5_CATEGORIES[catId]) {
       const pos = textLower.indexOf(keyword);
       if (pos !== -1) {
         if (pos < firstPosition) firstPosition = pos;
@@ -1153,7 +1151,7 @@ function categorizeQ5Answer(text) {
   return 3; // Default to Communication
 }
 
-// // Compatibility Engine Logic
+// Compatibility Engine Logic
 function getAnswerLabel(questionNum, rawValue) {
   if (questionNum === 5) return String(rawValue);
 
@@ -1322,6 +1320,12 @@ app.post("/submit", (req, res) => {
   }
 });
 
+
+
+
+
+
+
 app.get("/results", (req, res) => {
   res.sendFile(path.join(__dirname, "template", "results.html"));
 });
@@ -1470,277 +1474,3 @@ module.exports = {
   getAnswerLabel,
   getCompatibilityLevel,
 };
-
-// const express = require("express");
-// const path = require("path");
-// const mongoose = require("mongoose");
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// // Middleware
-// app.use(express.json());
-// app.use(express.static("static"));
-
-// /* =========================
-//    ✅ MongoDB Connection
-// ========================= */
-// mongoose
-//   .connect(
-//     process.env.MONGO_URI ||
-//       "mongodb://spakindai:Pearlapp@ac-vrrvhjq-shard-00-00.1svywc7.mongodb.net:27017,ac-vrrvhjq-shard-00-01.1svywc7.mongodb.net:27017,ac-vrrvhjq-shard-00-02.1svywc7.mongodb.net:27017/WingCompatibility?ssl=true&replicaSet=atlas-12or8j-shard-0&authSource=admin&appName=SpakCluster",
-//   )
-//   .then(() => console.log("✅ MongoDB Connected"))
-//   .catch((err) => {
-//     console.error("❌ DB Error:", err.message);
-//     process.exit(1);
-//   });
-
-// /* =========================
-//    ✅ Schema
-// ========================= */
-// // const userSchema = new mongoose.Schema({
-// //   name: String,
-// //   gender: String,
-// //   phone: String,
-// //   answers: Object,
-// //   created_at: {
-// //     type: Date,
-// //     default: Date.now,
-// //   },
-// // });
-
-// const userSchema = new mongoose.Schema({
-//   id: {
-//     type: Number,
-//     unique: true,
-//   },
-//   name: String,
-//   gender: String,
-//   phone: String,
-//   answers: Object,
-//   created_at: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
-
-// // ✅ AUTO INCREMENT ID (FIXED)
-// userSchema.pre("save", async function () {
-//   if (!this.isNew) return;
-
-//   const lastUser = await this.constructor.findOne().sort({ id: -1 });
-//   this.id = lastUser ? lastUser.id + 1 : 1;
-// });
-
-// // ✅ MODEL AFTER HOOK
-// const User = mongoose.model("User", userSchema);
-
-// /* =========================
-//    Helper
-// ========================= */
-// function sortAnswers(answers) {
-//   return Object.fromEntries(
-//     Object.entries(answers).sort(([a], [b]) => parseInt(a) - parseInt(b)),
-//   );
-// }
-
-// /* =========================
-//    NLP + COMPATIBILITY (UNCHANGED)
-// ========================= */
-
-// // 🔹 Keep your categorizeQ5Answer here EXACTLY SAME
-// // 🔹 Keep getAnswerLabel
-// // 🔹 Keep getCompatibilityLevel
-// // 🔹 Keep calculateCompatibility
-
-// /* =========================
-//    ROUTES
-// ========================= */
-
-// // Home
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "template", "home.html"));
-// });
-
-// /* =========================
-//    SUBMIT USER
-// ========================= */
-// app.post("/submit", async (req, res) => {
-//   try {
-//     const { name, gender, phone, answers } = req.body;
-
-//     const phoneRegex = /^\d{10}$/;
-
-//     if (!name || !gender || !phone) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "Missing required fields",
-//       });
-//     }
-
-//     if (!phoneRegex.test(phone)) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "Phone must be 10 digits",
-//       });
-//     }
-
-//     if (!answers || Object.keys(answers).length !== 25) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "Invalid answers",
-//       });
-//     }
-
-//     const user = await User.create({
-//       name,
-//       gender,
-//       phone,
-//       answers: sortAnswers(answers),
-//     });
-
-//     // Opposite gender matching
-//     const others = await User.find({
-//       gender: gender === "Male" ? "Female" : "Male",
-//       _id: { $ne: user._id },
-//     });
-
-//     const scores = others.map((other) => ({
-//       id: other._id,
-//       name: other.name,
-//       score: calculateCompatibility(user.answers, other.answers),
-//     }));
-
-//     scores.sort((a, b) => b.score - a.score);
-
-//     res.json({
-//       success: true,
-//       userId: user._id,
-//       scores,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// /* =========================
-//    STATIC PAGES
-// ========================= */
-// app.get("/results", (req, res) => {
-//   res.sendFile(path.join(__dirname, "template", "results.html"));
-// });
-
-// app.get("/add-user", (req, res) => {
-//   res.sendFile(path.join(__dirname, "template", "add_user.html"));
-// });
-
-// app.get("/all-compatibility", (req, res) => {
-//   res.sendFile(path.join(__dirname, "template", "all_compatibility.html"));
-// });
-
-// /* =========================
-//    GET USERS
-// ========================= */
-// app.get("/api/users", async (req, res) => {
-//   try {
-//     const users = await User.find().sort({ created_at: -1 });
-//     res.json(users);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// /* =========================
-//    ALL COMPATIBILITY
-// ========================= */
-// app.get("/api/compatibility/all", async (req, res) => {
-//   try {
-//     const userId = req.query.user_id || null;
-//     const users = await User.find();
-
-//     const matrix = [];
-
-//     if (userId) {
-//       const selected = users.find((u) => u.id.toString() === userId);
-//       if (!selected) return res.status(404).json({ error: "User not found" });
-
-//       users.forEach((u) => {
-//         if (u._id.toString() !== userId && u.gender !== selected.gender) {
-//           // matrix.push({
-//           //   user1: selected,
-//           //   user2: u,
-//           //   score: calculateCompatibility(selected.answers, u.answers),
-//           // });
-//           matrix.push({
-//             user1: {
-//               id: selected.id,
-//               name: selected.name,
-//               gender: selected.gender,
-//             },
-//             user2: {
-//               id: u.id, // ✅ FIX HERE
-//               name: u.name,
-//               gender: u.gender,
-//             },
-//             score: calculateCompatibility(selected.answers, u.answers),
-//           });
-//         }
-//       });
-//     } else {
-//       for (let i = 0; i < users.length; i++) {
-//         for (let j = i + 1; j < users.length; j++) {
-//           if (users[i].gender !== users[j].gender) {
-//             matrix.push({
-//               user1: users[i],
-//               user2: users[j],
-//               score: calculateCompatibility(users[i].answers, users[j].answers),
-//             });
-//           }
-//         }
-//       }
-//     }
-
-//     matrix.sort((a, b) => b.score - a.score);
-//     res.json(matrix);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// /* =========================
-//    DETAILED COMPATIBILITY
-// ========================= */
-// app.get("/api/compatibility/detailed", async (req, res) => {
-//   try {
-//     const { user1_id, user2_id } = req.query;
-
-//     if (!user1_id || !user2_id) {
-//       return res.status(400).json({ error: "Both user IDs required" });
-//     }
-
-//     const u1 = await User.findById(user1_id);
-//     const u2 = await User.findById(user2_id);
-
-//     if (!u1 || !u2) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     const analysis = calculateCompatibility(u1.answers, u2.answers, true);
-
-//     res.json({
-//       user1: u1,
-//       user2: u2,
-//       analysis,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// /* =========================
-//    START SERVER
-// ========================= */
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running at http://localhost:${PORT}`);
-// });
