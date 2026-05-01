@@ -1321,6 +1321,48 @@ app.post("/submit", (req, res) => {
 });
 
 
+app.delete("/user/:id", (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
+
+    // Check if user exists
+    const user = db
+      .prepare("SELECT * FROM users WHERE id = ?")
+      .get(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    // Delete user
+    db.prepare("DELETE FROM users WHERE id = ?").run(userId);
+
+    res.json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
+
+
+
 
 
 
